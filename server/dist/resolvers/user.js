@@ -53,6 +53,10 @@ __decorate([
     type_graphql_1.Field(() => User_1.User, { nullable: true }),
     __metadata("design:type", User_1.User)
 ], UserResponse.prototype, "user", void 0);
+__decorate([
+    type_graphql_1.Field(() => [User_1.User], { nullable: true }),
+    __metadata("design:type", Array)
+], UserResponse.prototype, "users", void 0);
 UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
@@ -120,6 +124,25 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
+    allusers({ req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userUUID) {
+                return {
+                    errors: [
+                        {
+                            field: "login",
+                            message: 'user not logged in'
+                        }
+                    ]
+                };
+            }
+            const users = yield User_1.User.find({ relations: ['messages'] });
+            users.forEach(user => {
+                user.messages.forEach(message => console.log(message.text));
+            });
+            return { users };
+        });
+    }
 };
 __decorate([
     type_graphql_1.Query(() => User_1.User, { nullable: true }),
@@ -144,6 +167,13 @@ __decorate([
     __metadata("design:paramtypes", [UsernamePassInput_1.UsernamePassInput, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
+__decorate([
+    type_graphql_1.Query(() => UserResponse, { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "allusers", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

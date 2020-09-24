@@ -34,8 +34,14 @@ class ChatroomResponse {
   @Field(() => [ChatroomErrors], { nullable: true })
   errors?: ChatroomErrors[];
 
+  @Field(() => Message, { nullable: true })
+  message?: Message
+
   @Field(() => [Message], { nullable: true })
   messages?: Message[];
+
+  @Field(() => [Message], { nullable: true })
+  messages2?: Message[];
 
   @Field(() => Chatroom, { nullable: true})
   chatroom?: Chatroom
@@ -46,25 +52,28 @@ class ChatroomResponse {
 
 @Resolver(Chatroom)
 export class ChatroomResolver {
-  @Mutation(() => Message, {nullable: true})
+  @Mutation(() => ChatroomResponse, {nullable: true})
   async send(
     @Arg('input') input: MessageInput,
     @Ctx() {req}: MyContext
-  ) {
+  ): Promise<ChatroomResponse> {
     //check if the user is logged in
     if (!req.session.userUUID) {
-      return null
+      return {
+        errors: [
+          {
+            field: "login",
+            message: 'user not logged in'
+          }
+        ]
+      }
     }
-    let message;
-    if (!input.text) {
-      //store message in database
-      message = await Message.create({
+    const message = await Message.create({
         text: input.text,
         userUUID: req.session.userUUID,
         chatroomUUID: input.chatroomUUID,
         username: input.username
       }).save()
-    }
 
     return {message}
   }
@@ -140,7 +149,28 @@ export class ChatroomResolver {
         ]
       }      
     }
-    const chatrooms = await Chatroom.find({ where: {creatorUUID: req.session.userUUID}, relations: ['creator']})
+    const chatrooms = await Chatroom.find({ relations: ['messages']})
+    chatrooms.forEach(user => {
+      user.messages.forEach(message => console.log(message.text))
+    })
     return {chatrooms}
+  }
+  @Query(() => ChatroomResponse, {nullable: true})
+  async allmessages(
+    @Ctx() {req}: MyContext
+  ): Promise<ChatroomResponse> {
+    if(!req.session.userUUID) {
+      return {
+        errors: [
+          {
+            field: 'login',
+            message: 'user not logged in'
+          }
+        ]
+      }      
+    }
+    const messages2 = await Message.find({relations: ['chatroom']})
+    console.log(messages2)
+    return {messages2}
   }
 }
