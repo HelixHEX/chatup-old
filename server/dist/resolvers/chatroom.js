@@ -48,9 +48,17 @@ __decorate([
     __metadata("design:type", Array)
 ], ChatroomResponse.prototype, "errors", void 0);
 __decorate([
+    type_graphql_1.Field(() => Message_1.Message, { nullable: true }),
+    __metadata("design:type", Message_1.Message)
+], ChatroomResponse.prototype, "message", void 0);
+__decorate([
     type_graphql_1.Field(() => [Message_1.Message], { nullable: true }),
     __metadata("design:type", Array)
 ], ChatroomResponse.prototype, "messages", void 0);
+__decorate([
+    type_graphql_1.Field(() => [Message_1.Message], { nullable: true }),
+    __metadata("design:type", Array)
+], ChatroomResponse.prototype, "messages2", void 0);
 __decorate([
     type_graphql_1.Field(() => Chatroom_1.Chatroom, { nullable: true }),
     __metadata("design:type", Chatroom_1.Chatroom)
@@ -66,17 +74,21 @@ let ChatroomResolver = class ChatroomResolver {
     send(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!req.session.userUUID) {
-                return null;
+                return {
+                    errors: [
+                        {
+                            field: "login",
+                            message: 'user not logged in'
+                        }
+                    ]
+                };
             }
-            let message;
-            if (!input.text) {
-                message = yield Message_1.Message.create({
-                    text: input.text,
-                    userUUID: req.session.userUUID,
-                    chatroomUUID: input.chatroomUUID,
-                    username: input.username
-                }).save();
-            }
+            const message = yield Message_1.Message.create({
+                text: input.text,
+                userUUID: req.session.userUUID,
+                chatroomUUID: input.chatroomUUID,
+                username: input.username
+            }).save();
             return { message };
         });
     }
@@ -136,13 +148,33 @@ let ChatroomResolver = class ChatroomResolver {
                     ]
                 };
             }
-            const chatrooms = yield Chatroom_1.Chatroom.find({ where: { creatorUUID: req.session.userUUID }, relations: ['creator'] });
+            const chatrooms = yield Chatroom_1.Chatroom.find({ relations: ['messages'] });
+            chatrooms.forEach(user => {
+                user.messages.forEach(message => console.log(message.text));
+            });
             return { chatrooms };
+        });
+    }
+    allmessages({ req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userUUID) {
+                return {
+                    errors: [
+                        {
+                            field: 'login',
+                            message: 'user not logged in'
+                        }
+                    ]
+                };
+            }
+            const messages2 = yield Message_1.Message.find({ relations: ['chatroom'] });
+            console.log(messages2);
+            return { messages2 };
         });
     }
 };
 __decorate([
-    type_graphql_1.Mutation(() => Message_1.Message, { nullable: true }),
+    type_graphql_1.Mutation(() => ChatroomResponse, { nullable: true }),
     __param(0, type_graphql_1.Arg('input')),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
@@ -172,6 +204,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ChatroomResolver.prototype, "allchatrooms", null);
+__decorate([
+    type_graphql_1.Query(() => ChatroomResponse, { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ChatroomResolver.prototype, "allmessages", null);
 ChatroomResolver = __decorate([
     type_graphql_1.Resolver(Chatroom_1.Chatroom)
 ], ChatroomResolver);

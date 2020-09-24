@@ -4,6 +4,7 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
@@ -37,6 +38,9 @@ class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
+
+  @Field(() => [User], { nullable: true})
+  users?: User[]
 }
 
 @Resolver(User)
@@ -128,5 +132,27 @@ export class UserResolver {
     req.session.userUUID = user.uuid;
 
     return {user}
+  }
+
+  @Query(() => UserResponse, {nullable: true})
+  async allusers(
+    @Ctx() {req}: MyContext
+  ): Promise<UserResponse> {
+    if (!req.session.userUUID) {
+      return {
+        errors: [
+          {
+            field: "login",
+            message: 'user not logged in'
+          }
+        ]
+      }
+    }
+
+    const users = await User.find({ relations: ['messages']})
+    users.forEach(user => {
+      user.messages.forEach(message => console.log(message.text))
+    })
+    return {users}
   }
 }

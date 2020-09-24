@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:type", String)
 ], Chatroom.prototype, "creatorUUID", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Message_1.Message, (message) => message.user),
+    typeorm_1.OneToMany(() => Message_1.Message, (message) => message.chatroom),
     __metadata("design:type", Array)
 ], Chatroom.prototype, "messages", void 0);
 Chatroom = __decorate([

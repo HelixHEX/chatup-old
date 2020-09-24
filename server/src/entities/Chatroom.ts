@@ -39,6 +39,6 @@ export class Chatroom extends BaseEntity {
   @Column()
   creatorUUID: string
   
-  @OneToMany(() => Message, (message: Message) => message.user)
+  @OneToMany(() => Message, (message: Message) => message.chatroom)
   messages: Message[];
 }
