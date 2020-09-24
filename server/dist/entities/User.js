@@ -49,6 +49,10 @@ __decorate([
     typeorm_1.JoinTable(),
     __metadata("design:type", Array)
 ], User.prototype, "chatrooms", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Chatroom_1.Chatroom, (chatroom) => chatroom.creator),
+    __metadata("design:type", Array)
+], User.prototype, "chatroomscreated", void 0);
 User = __decorate([
     type_graphql_1.ObjectType(),
     typeorm_1.Entity({ name: 'user' })

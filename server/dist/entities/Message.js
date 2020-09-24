@@ -22,7 +22,7 @@ __decorate([
     __metadata("design:type", String)
 ], Message.prototype, "uuid", void 0);
 __decorate([
-    type_graphql_1.Field(),
+    type_graphql_1.Field(() => String),
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], Message.prototype, "text", void 0);
@@ -46,11 +46,17 @@ __decorate([
     __metadata("design:type", String)
 ], Message.prototype, "userUUID", void 0);
 __decorate([
+    type_graphql_1.Field(() => String),
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Message.prototype, "username", void 0);
+__decorate([
     typeorm_1.ManyToOne(() => Chatroom_1.Chatroom, (chatroom) => chatroom.messages, { primary: true }),
     typeorm_1.JoinColumn({ name: 'chatroomUUID' }),
     __metadata("design:type", Chatroom_1.Chatroom)
 ], Message.prototype, "chatroom", void 0);
 __decorate([
+    type_graphql_1.Field(() => String),
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], Message.prototype, "chatroomUUID", void 0);

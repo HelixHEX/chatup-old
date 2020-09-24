@@ -41,4 +41,7 @@ export class User extends BaseEntity {
   @ManyToMany(() => Chatroom)
   @JoinTable()
   chatrooms: Chatroom[];
+
+  @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.creator)
+  chatroomscreated: Chatroom[]
 }

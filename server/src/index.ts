@@ -1,5 +1,5 @@
 //config stuff
-import { __prod__ } from "./constants";
+import { __prod__, COOKIE_NAME } from "./constants";
 import path from 'path';
 import 'dotenv-safe/config';
 import 'reflect-metadata';
@@ -24,7 +24,7 @@ import { Chatroom } from './entities/Chatroom'
 
 //resolvers
 import { UserResolver } from './resolvers/user'
-// import { ChatroomResolver } from './resolvers/chatroom'
+import { ChatroomResolver } from './resolvers/chatroom'
 
 
 //redis/sessions
@@ -60,7 +60,7 @@ const main = async () => {
   //setup redis/sessions
   app.use(
     session({
-      name: 'qid',
+      name: COOKIE_NAME,
       store: new RedisStore({ 
         client: redisClient,
         disableTouch: true,
@@ -80,7 +80,7 @@ const main = async () => {
   //setup apollo server
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, ChatroomResolver],
       validate: false,
     }),
     context: ({req, res}) => ({ req, res }),

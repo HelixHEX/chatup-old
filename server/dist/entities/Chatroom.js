@@ -13,6 +13,7 @@ exports.Chatroom = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
 const Message_1 = require("./Message");
+const User_1 = require("./User");
 let Chatroom = class Chatroom extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -35,6 +36,15 @@ __decorate([
     typeorm_1.UpdateDateColumn(),
     __metadata("design:type", Date)
 ], Chatroom.prototype, "updatedAt", void 0);
+__decorate([
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.chatroomscreated, { primary: true }),
+    typeorm_1.JoinColumn({ name: 'creatorUUID' }),
+    __metadata("design:type", User_1.User)
+], Chatroom.prototype, "creator", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Chatroom.prototype, "creatorUUID", void 0);
 __decorate([
     typeorm_1.OneToMany(() => Message_1.Message, (message) => message.user),
     __metadata("design:type", Array)
