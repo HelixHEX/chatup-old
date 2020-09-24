@@ -16,9 +16,6 @@ import { User } from "../entities/User";
 //username/password field types
 import { UsernamePassInput } from "./UsernamePassInput";
 
-//types
-// import { MyContext } from "../types";
-
 //argon2 
 import argon2 from "argon2"
 

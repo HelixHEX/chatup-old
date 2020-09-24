@@ -1,0 +1,1 @@
+{"version":3,"file":"validateMessage.js","sourceRoot":"","sources":["../../src/utilities/validateMessage.ts"],"names":[],"mappings":";;;AAGa,QAAA,eAAe,GAAG,CAAC,KAAmB,EAAE,EAAE;IACrD,IAAI,CAAC,KAAK,CAAC,YAAY,EAAE;QACvB,OAAO;YACL;gBACE,KAAK,EAAE,MAAM;gBACb,OAAO,EAAE,wBAAwB;aAClC;SACF,CAAA;KACF;IAED,OAAO,IAAI,CAAC;AACd,CAAC,CAAC"}

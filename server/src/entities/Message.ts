@@ -21,7 +21,7 @@ export class Message extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   uuid: string;
 
-  @Field()
+  @Field(() => String)
   @Column()
   text!: string;
 
@@ -38,12 +38,17 @@ export class Message extends BaseEntity {
   user: User;
 
   @Column()
-  userUUID: string;
+  userUUID!: string;
+
+  @Field(() => String)
+  @Column()
+  username!: string;
   
   @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.messages, { primary: true })
   @JoinColumn({ name: 'chatroomUUID'})
   chatroom: Chatroom
 
+  @Field(() => String)
   @Column()
-  chatroomUUID: string;
+  chatroomUUID!: string;
 }

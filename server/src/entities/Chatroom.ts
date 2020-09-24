@@ -5,12 +5,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToMany
+  OneToMany, ManyToOne, JoinColumn
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 
 //entities
 import { Message } from "./Message";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
@@ -30,6 +31,13 @@ export class Chatroom extends BaseEntity {
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => User, (user: User) => user.chatroomscreated, { primary: true})
+  @JoinColumn({name: 'creatorUUID'})
+  creator: User
+
+  @Column()
+  creatorUUID: string
   
   @OneToMany(() => Message, (message: Message) => message.user)
   messages: Message[];

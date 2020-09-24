@@ -25,6 +25,7 @@ const User_1 = require("./entities/User");
 const Message_1 = require("./entities/Message");
 const Chatroom_1 = require("./entities/Chatroom");
 const user_1 = require("./resolvers/user");
+const chatroom_1 = require("./resolvers/chatroom");
 const redis_1 = __importDefault(require("redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
@@ -45,7 +46,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         credentials: true
     }));
     app.use(express_session_1.default({
-        name: 'qid',
+        name: constants_1.COOKIE_NAME,
         store: new RedisStore({
             client: redisClient,
             disableTouch: true,
@@ -62,7 +63,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
-            resolvers: [user_1.UserResolver],
+            resolvers: [user_1.UserResolver, chatroom_1.ChatroomResolver],
             validate: false,
         }),
         context: ({ req, res }) => ({ req, res }),
