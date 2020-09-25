@@ -4,7 +4,6 @@ import {
   Arg,
   Ctx,
   Field,
-  FieldResolver,
   Mutation,
   ObjectType,
   Query,
