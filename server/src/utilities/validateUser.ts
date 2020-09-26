@@ -30,3 +30,26 @@ export const validateRegister = (input: UsernamePassInput) => {
 
   return null;
 };
+
+export const validateLogin = (input: UsernamePassInput) => {
+  if (!input.username) {
+    console.log('username empty')
+    return [
+      {
+        field: 'username',
+        message: 'field cannot be blank'
+      }
+    ]
+  }
+
+  if (!input.password) {
+    return [
+      {
+        field: 'password',
+        message: 'field cannot be blank'
+      }
+    ]
+  }
+
+  return null
+}

@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
-const validateRegister_1 = require("..//utilities/validateRegister");
+const validateUser_1 = require("../utilities/validateUser");
 const type_graphql_1 = require("type-graphql");
 const User_1 = require("../entities/User");
 const UsernamePassInput_1 = require("./UsernamePassInput");
@@ -72,7 +72,7 @@ let UserResolver = class UserResolver {
     }
     register(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const errors = validateRegister_1.validateRegister(input);
+            const errors = validateUser_1.validateRegister(input);
             if (errors) {
                 return { errors };
             }
@@ -102,25 +102,33 @@ let UserResolver = class UserResolver {
     }
     login(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            const errors = validateUser_1.validateLogin(input);
+            if (errors) {
+                return { errors };
+            }
             const user = yield User_1.User.findOne({ username: input.username });
             if (!user) {
                 return {
-                    errors: [{
-                            field: "login",
-                            message: "Incorrect Username/Password"
-                        }]
+                    errors: [
+                        {
+                            field: "password",
+                            message: 'inccorect username/password'
+                        }
+                    ]
                 };
             }
             const verifyPass = yield argon2_1.default.verify(user.password, input.password);
             if (!verifyPass) {
                 return {
-                    errors: [{
-                            field: "login",
-                            message: 'Incorrect Username/Password'
-                        }]
+                    errors: [
+                        {
+                            field: 'password',
+                            message: 'inccorect username/password'
+                        }
+                    ]
                 };
             }
-            req.session.userUUID = user.uuid;
+            req.session.userUUID = user === null || user === void 0 ? void 0 : user.uuid;
             return { user };
         });
     }
