@@ -1,4 +1,4 @@
-import { validateRegister } from "..//utilities/validateRegister";
+import { validateLogin, validateRegister } from "../utilities/validateUser";
 //typescript graphql
 import {
   Arg,
@@ -60,7 +60,7 @@ export class UserResolver {
     @Arg("input") input: UsernamePassInput,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
-    //check for errors
+       //check for errors
     const errors = validateRegister(input);
     if (errors) {
       return { errors}
@@ -102,34 +102,41 @@ export class UserResolver {
     @Arg("input") input: UsernamePassInput,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
-    //check if user exists using username
+    //check for errors
+    const errors = validateLogin(input);
+    if (errors) {
+      return { errors}
+    }
+
+    //check if user exists 
     const user = await User.findOne({username: input.username})
-    
-    //return an error if the user doesnt exist
     if (!user) {
       return {
-        errors: [{
-          field: "login",
-          message: "Incorrect Username/Password"
-        }]
+        errors: [
+          {
+            field: "password",
+            message: 'inccorect username/password'
+          }
+        ]
       }
     }
 
-    //verify passwords
     const verifyPass = await argon2.verify(user.password, input.password)
-    
-    //return an error if the passwords dont match 
     if (!verifyPass) {
       return {
-        errors: [{
-          field: "login",
-          message: 'Incorrect Username/Password'
-        }]
+        errors: [
+          {
+            field: 'password',
+            message: 'inccorect username/password'
+          }
+        ]
       }
     }
 
-    req.session.userUUID = user.uuid;
+    //create user session 
+    req.session.userUUID = user?.uuid;
 
+    //return user
     return {user}
   }
 
