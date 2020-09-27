@@ -29,21 +29,22 @@ const chatroom_1 = require("./resolvers/chatroom");
 const redis_1 = __importDefault(require("redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
+const http_1 = require("http");
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const redisClient = redis_1.default.createClient();
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield typeorm_1.createConnection({
-        type: 'postgres',
+        type: "postgres",
         url: process.env.DATABASE_URL,
         logging: true,
         synchronize: true,
-        migrations: [path_1.default.join(__dirname, './migrations/*')],
-        entities: [User_1.User, Message_1.Message, Chatroom_1.Chatroom]
+        migrations: [path_1.default.join(__dirname, "./migrations/*")],
+        entities: [User_1.User, Message_1.Message, Chatroom_1.Chatroom],
     });
     const app = express_1.default();
     app.use(cors_1.default({
         origin: process.env.CORS_ORIGIN,
-        credentials: true
+        credentials: true,
     }));
     app.use(express_session_1.default({
         name: constants_1.COOKIE_NAME,
@@ -54,12 +55,12 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
             httpOnly: true,
-            sameSite: 'lax',
-            secure: constants_1.__prod__
+            sameSite: "lax",
+            secure: constants_1.__prod__,
         },
         saveUninitialized: false,
         secret: process.env.SESSION_SECRET,
-        resave: false
+        resave: false,
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
@@ -69,8 +70,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         context: ({ req, res }) => ({ req, res }),
     });
     apolloServer.applyMiddleware({ app, cors: false });
-    app.listen(process.env.PORT, () => {
-        console.log("server started on localhost:5000");
+    const subscriptionsServer = http_1.createServer(app);
+    apolloServer.installSubscriptionHandlers(subscriptionsServer);
+    subscriptionsServer.listen(process.env.PORT, () => {
+        console.log(`🚀 Server ready at http://localhost:5000${apolloServer.graphqlPath}`);
+        console.log(`🚀 Subscriptions ready at ws://localhost:5000${apolloServer.subscriptionsPath}`);
     });
 });
 main();
