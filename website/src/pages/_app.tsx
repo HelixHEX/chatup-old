@@ -1,6 +1,6 @@
 import { ThemeProvider, CSSReset, ColorModeProvider } from "@chakra-ui/core";
 
-import { Provider, createClient } from "urql";
+import { Provider, createClient, defaultExchanges, subscriptionExchange } from "urql";
 
 import theme from "../theme";
 
@@ -9,6 +9,12 @@ const client = createClient({
   fetchOptions: {
     credentials: 'include'
   }
+  // exchanges: [
+  //   ...defaultExchanges,
+  //   subscriptionExchange({
+  //     forwardSubscription,
+  //   })
+  // ]
  });
 
 function MyApp({ Component, pageProps }) {
