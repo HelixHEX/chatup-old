@@ -30,6 +30,7 @@ const redis_1 = __importDefault(require("redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const http_1 = require("http");
+const notification_1 = require("./resolvers/notification");
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const redisClient = redis_1.default.createClient();
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -55,8 +56,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
             httpOnly: true,
-            sameSite: "lax",
-            secure: constants_1.__prod__,
+            secure: false,
         },
         saveUninitialized: false,
         secret: process.env.SESSION_SECRET,
@@ -64,7 +64,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
-            resolvers: [user_1.UserResolver, chatroom_1.ChatroomResolver],
+            resolvers: [user_1.UserResolver, chatroom_1.ChatroomResolver, notification_1.NotificationResolver],
             validate: false,
         }),
         context: ({ req, res }) => ({ req, res }),
@@ -72,7 +72,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     apolloServer.applyMiddleware({ app, cors: false });
     const subscriptionsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(subscriptionsServer);
-    subscriptionsServer.listen(process.env.PORT, () => {
+    app.listen(5000, () => {
         console.log(`🚀 Server ready at http://localhost:5000${apolloServer.graphqlPath}`);
         console.log(`🚀 Subscriptions ready at ws://localhost:5000${apolloServer.subscriptionsPath}`);
     });

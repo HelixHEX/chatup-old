@@ -4,9 +4,12 @@ import {
   Field,
   Mutation,
   ObjectType,
+  Publisher,
+  PubSub,
   Query,
   Resolver,
 } from "type-graphql";
+
 
 //entities
 import { Message } from "../entities/Message"
@@ -19,6 +22,7 @@ import { ChatroomRequest, CreateChatroom } from './ChatroomTypes'
 
 //utilities
 import {validateChatroom} from '../utilities/validateChatroom'
+import { NotificationPayload } from "src/utilities/notification.type";
 
 //Class for errors
 @ObjectType()
@@ -30,7 +34,7 @@ class ChatroomErrors {
 }
 
 @ObjectType()
-class ChatroomResponse {
+class ChatroomResponse {  
   @Field(() => [ChatroomErrors], { nullable: true })
   errors?: ChatroomErrors[];
 
@@ -54,27 +58,28 @@ class ChatroomResponse {
 export class ChatroomResolver {
   @Mutation(() => ChatroomResponse, {nullable: true})
   async send(
+    @PubSub("NOTIFICATIONS") publish: Publisher<NotificationPayload>,
     @Arg('input') input: MessageInput,
     @Ctx() {req}: MyContext
   ): Promise<ChatroomResponse> {
     //check if the user is logged in
-    if (!req.session.userUUID) {
+    if(!req.session.userUUID) {
       return {
         errors: [
           {
-            field: "login",
+            field: 'login',
             message: 'user not logged in'
           }
         ]
-      }
+      }      
     }
     const message = await Message.create({
         text: input.text,
         userUUID: req.session.userUUID,
         chatroomUUID: input.chatroomUUID,
         username: input.username
-      }).save()
-
+    }).save()
+    await publish({ field: "New Message", message: input.text})
     return {message}
   }
 
@@ -139,16 +144,17 @@ export class ChatroomResolver {
   async allchatrooms(
     @Ctx() {req}: MyContext
   ): Promise<ChatroomResponse> {
-    if(!req.session.userUUID) {
-      return {
-        errors: [
-          {
-            field: 'login',
-            message: 'user not logged in'
-          }
-        ]
-      }      
-    }
+    // if(!req.session.userUUID) {
+    //   return {
+    //     errors: [
+    //       {
+    //         field: 'login',
+    //         message: 'user not logged in'
+    //       }
+    //     ]
+    //   }      
+    // }
+    console.log(req.session.userUUID)
     const chatrooms = await Chatroom.find({ relations: ['messages']})
     chatrooms.forEach(user => {
       user.messages.forEach(message => console.log(message.text))

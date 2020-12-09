@@ -134,8 +134,7 @@ export class UserResolver {
     }
 
     //create user session 
-    req.session.userUUID = user?.uuid;
-
+    req.session.userUUID = user.uuid;
     //return user
     return {user}
   }
