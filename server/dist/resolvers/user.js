@@ -128,7 +128,7 @@ let UserResolver = class UserResolver {
                     ]
                 };
             }
-            req.session.userUUID = user === null || user === void 0 ? void 0 : user.uuid;
+            req.session.userUUID = user.uuid;
             return { user };
         });
     }

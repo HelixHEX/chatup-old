@@ -71,13 +71,13 @@ ChatroomResponse = __decorate([
     type_graphql_1.ObjectType()
 ], ChatroomResponse);
 let ChatroomResolver = class ChatroomResolver {
-    send(input, { req }) {
+    send(publish, input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!req.session.userUUID) {
                 return {
                     errors: [
                         {
-                            field: "login",
+                            field: 'login',
                             message: 'user not logged in'
                         }
                     ]
@@ -89,6 +89,7 @@ let ChatroomResolver = class ChatroomResolver {
                 chatroomUUID: input.chatroomUUID,
                 username: input.username
             }).save();
+            yield publish({ field: "New Message", message: input.text });
             return { message };
         });
     }
@@ -138,16 +139,7 @@ let ChatroomResolver = class ChatroomResolver {
     }
     allchatrooms({ req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userUUID) {
-                return {
-                    errors: [
-                        {
-                            field: 'login',
-                            message: 'user not logged in'
-                        }
-                    ]
-                };
-            }
+            console.log(req.session.userUUID);
             const chatrooms = yield Chatroom_1.Chatroom.find({ relations: ['messages'] });
             chatrooms.forEach(user => {
                 user.messages.forEach(message => console.log(message.text));
@@ -175,10 +167,11 @@ let ChatroomResolver = class ChatroomResolver {
 };
 __decorate([
     type_graphql_1.Mutation(() => ChatroomResponse, { nullable: true }),
-    __param(0, type_graphql_1.Arg('input')),
-    __param(1, type_graphql_1.Ctx()),
+    __param(0, type_graphql_1.PubSub("NOTIFICATIONS")),
+    __param(1, type_graphql_1.Arg('input')),
+    __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [ChatroomTypes_1.MessageInput, Object]),
+    __metadata("design:paramtypes", [Function, ChatroomTypes_1.MessageInput, Object]),
     __metadata("design:returntype", Promise)
 ], ChatroomResolver.prototype, "send", null);
 __decorate([

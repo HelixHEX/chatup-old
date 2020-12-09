@@ -11,7 +11,7 @@ import express from "express";
 import cors from "cors";
 
 //graphql
-import { ApolloServer, PubSub } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 // import { RedisPubSub } from "graphql-redis-subscriptions";
 // import { subscribe, execute } from "graphql";
@@ -36,6 +36,7 @@ import session from "express-session";
 import connectRedis from "connect-redis";
 // import { SubscriptionServer } from "subscriptions-transport-ws";
 import { createServer } from "http";
+import { NotificationResolver } from "./resolvers/notification";
 
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient();
@@ -71,10 +72,10 @@ const main = async () => {
         disableTouch: true,
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
-        sameSite: "lax",
-        secure: __prod__,
+        // sameSite: "lax", // csrf
+        secure: false, // cookie only works in https
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
@@ -86,7 +87,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, ChatroomResolver],
+      resolvers: [UserResolver, ChatroomResolver, NotificationResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({ req, res }),
@@ -98,7 +99,7 @@ const main = async () => {
   const subscriptionsServer = createServer(app);
   apolloServer.installSubscriptionHandlers(subscriptionsServer);
 
-  subscriptionsServer.listen(process.env.PORT, () => {
+  app.listen(5000, () => {
     console.log(`🚀 Server ready at http://localhost:5000${apolloServer.graphqlPath}`);
     console.log(`🚀 Subscriptions ready at ws://localhost:5000${apolloServer.subscriptionsPath}`);
   });
