@@ -28,6 +28,7 @@ const main = () => {
 
   io.on('connection', (socket) => {
     console.log('user connected')
+
     socket.on('disconnect', () => {
       removeUser(socket.id)
       io.emit('onlineusers', onlineusers);
@@ -35,13 +36,15 @@ const main = () => {
     });
     socket.on('chat message', (msg) => {
       console.log(msg)
-      io.emit('chat message', msg);
+      io.to(msg.room).emit('chat message', msg);
     });
 
     socket.on('join', (user) => {
-      console.log(`${user} has joined`)
+      console.log(`${user.username} has joined`)
+      console.log(user.room)
       addUser(socket.id)
-      io.emit('onlineusers', onlineusers);
+      socket.join(user.room)
+      io.to(user.room).emit('onlineusers', onlineusers);
     });
   });
 
