@@ -14,7 +14,7 @@ export const addUser = (id, room) => {
 
 export const removeUser = (id, room) => {
   const index = onlineusers.findIndex(x => x.room_name === room)
-  if (index > 0) {
+  if (index >= 0) {
     for (var i=0; i<onlineusers[index].users.length; i++) {
       if (onlineusers[index].users[i] === id) {
         onlineusers[index].users.splice(i, 1)
