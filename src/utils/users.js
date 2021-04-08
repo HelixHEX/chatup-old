@@ -1,9 +1,4 @@
-let onlineusers = [
-  {
-    room_name: 'general',
-    users: []
-  }
-]
+let onlineusers = []
 
 export const addUser = (id, room) => {
   const index = onlineusers.findIndex(x => x.room_name === room)
