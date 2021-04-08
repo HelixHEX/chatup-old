@@ -7,7 +7,7 @@ const app = express();
 const cors = require('cors')
 const path = require("path");
 
-import { onlineusers, addUser, removeUser } from './utils/users'
+import { users, addUser, removeUser } from './utils/users'
 
 const main = () => {
   app.use(cors());
@@ -27,12 +27,12 @@ const main = () => {
 
 
   io.on('connection', (socket) => {
-    console.log('user connected')
-
     socket.on('disconnect', () => {
-      removeUser(socket.id)
-      io.emit('onlineusers', onlineusers);
-      console.log(`user disconnected`);
+      removeUser(socket.id, socket.room)
+
+      let onlineusers = users(socket.room)
+      io.to(socket.room).emit('onlineusers', onlineusers);
+      console.log(`Disconnected: ${socket.id}`);
     });
     socket.on('chat message', (msg) => {
       console.log(msg)
@@ -40,10 +40,13 @@ const main = () => {
     });
 
     socket.on('join', (user) => {
-      console.log(`${user.username} has joined`)
-      console.log(user.room)
-      addUser(socket.id)
+      console.log(`${user.username} has joined ${user.room}`)
+      socket.username = user.username
+      socket.room = user.room
+      addUser(socket.id, socket.room)
       socket.join(user.room)
+
+      let onlineusers = users(socket.room)
       io.to(user.room).emit('onlineusers', onlineusers);
     });
   });
