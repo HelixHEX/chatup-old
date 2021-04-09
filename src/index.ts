@@ -62,7 +62,7 @@ const main = () => {
   });
 
   //prevent heroku from sleeping
-  const cronJob = new cron.CronJob("0 */25 * * * *", () => {
+  const cronJob = new cron.CronJob("0 */15 * * * *", () => {
     fetch("https://devpeak.herokuapp.com/")
       .then((res) =>
         console.log(`response-ok: ${res.ok}, status: ${res.status}`)
